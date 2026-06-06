@@ -1,0 +1,21 @@
+{
+  "name": "signaldock",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @signaldock/shared && npm run build -w @signaldock/api && npm run build -w @signaldock/worker",
+    "dev:api": "npm run dev -w @signaldock/api",
+    "dev:worker": "npm run dev -w @signaldock/worker",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy"
+  },
+  "devDependencies": {
+    "prisma": "^6.8.2",
+    "typescript": "^5.8.3"
+  }
+}

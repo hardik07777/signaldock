@@ -1,0 +1,28 @@
+{
+  "name": "@signaldock/api",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json",
+    "dev": "node ../../node_modules/tsx/dist/cli.mjs watch src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@fastify/swagger": "^9.0.0",
+    "@fastify/swagger-ui": "^5.0.0",
+    "@prisma/client": "^6.8.2",
+    "@signaldock/shared": "1.0.0",
+    "bullmq": "^5.76.8",
+    "fastify": "^5.4.0",
+    "pino": "^9.7.0",
+    "prom-client": "^15.1.3",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
