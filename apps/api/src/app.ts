@@ -17,6 +17,8 @@ import { registerDashboardRoutes } from "./modules/dashboard/dashboard.routes";
 import { registerMetricsRoutes } from "./metrics/metrics.routes";
 import { DeadLettersService } from "./modules/dead-letters/dead-letters.service";
 import { registerDeadLetterRoutes } from "./modules/dead-letters/dead-letters.routes";
+import cors from "@fastify/cors";
+
 
 interface BuildServerOptions {
   env: ApiEnv;
@@ -32,6 +34,23 @@ export function buildServer(options: BuildServerOptions) {
     },
     disableRequestLogging: false
   });
+  
+ app.register(cors, {
+  origin: true,
+  methods: [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS"
+  ],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization"
+  ]
+});
+
 
   app.register(swagger, {
     openapi: {
