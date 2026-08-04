@@ -288,7 +288,7 @@ GitHub: https://github.com/hardik07777
 
 Portfolio: https://portfolio-hardik07.vercel.app/
 
-LinkedIn: https://linkedin.com/in/hardik-goel
+LinkedIn: [https://linkedin.com/in/hardik-goel](https://www.linkedin.com/in/hardikgoel07/)
 
 ---
 
