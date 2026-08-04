@@ -1,49 +1,297 @@
-# SignalDock
+# ⚓ SignalDock
 
-SignalDock is a production-oriented webhook delivery platform built as a TypeScript monorepo. The API accepts webhook events, persists them in PostgreSQL through Prisma, enqueues delivery jobs in BullMQ, and a worker service performs outbound delivery with retries, exponential backoff, and a dead letter queue.
+**SignalDock** is a production-inspired webhook delivery platform designed for reliable, asynchronous event processing at scale. It accepts webhook events through a Fastify API, persists them in PostgreSQL using Prisma, queues delivery jobs with BullMQ, and processes outbound webhooks through dedicated workers with automatic retries, exponential backoff, and dead-letter queue support.
 
-## Monorepo layout
+> Reliable Webhook Delivery • Queue-Based Processing • Production-Ready Architecture
+
+---
+
+## ✨ Features
+
+### 🚀 Webhook Ingestion
+- Receive webhook events through REST APIs
+- Input validation and persistent event storage
+- Event status tracking
+
+### ⚙️ Asynchronous Processing
+- BullMQ-powered job queues
+- Dedicated worker service
+- Non-blocking request handling
+
+### 🔄 Reliable Delivery
+- Automatic retry mechanism
+- Exponential backoff strategy
+- Delivery attempt history
+- Failure handling
+
+### 📦 Dead Letter Queue
+- Permanently failed events moved to DLQ
+- Prevents endless retries
+- Supports replaying failed events
+
+### 📊 Monitoring
+- Delivery status endpoints
+- Attempt history
+- Event lifecycle tracking
+- Health check endpoint
+
+---
+
+# 🏗 Architecture
 
 ```text
-apps/
-  api/        Fastify ingestion API
-  worker/     BullMQ delivery worker
-packages/
-  shared/     Shared queue, env, and domain contracts
-prisma/
-  schema.prisma
-  migrations/
-docker-compose.yml
+                Incoming Webhook
+                       │
+                       ▼
+            +----------------------+
+            |    Fastify API       |
+            +----------+-----------+
+                       │
+          Store Event in PostgreSQL
+                       │
+                       ▼
+                BullMQ Queue
+                       │
+             Redis Message Broker
+                       │
+                       ▼
+            +----------------------+
+            |  Worker Service      |
+            +----------+-----------+
+                       │
+              Deliver HTTP Request
+                       │
+          ┌────────────┴────────────┐
+          │                         │
+      Success                  Failure
+          │                         │
+          ▼                         ▼
+   Mark Delivered          Retry with Backoff
+                                     │
+                            Max Retries Reached
+                                     │
+                                     ▼
+                             Dead Letter Queue
 ```
 
-## Services
+---
 
-- `api`: Receives webhook events and exposes status endpoints.
-- `worker`: Delivers webhooks asynchronously and persists attempt history.
-- `postgres`: Primary transactional store for events and attempts.
-- `redis`: Queue backend for BullMQ.
+# 🛠 Tech Stack
 
-## Local development
+## Backend
 
-1. Copy `.env.example` to `.env` for local Node processes, or `.env.docker.example` to `.env` before running Docker Compose.
-2. Install dependencies with `npm install`.
-3. Generate Prisma client with `npm run prisma:generate`.
-4. Apply the migration with `npm run prisma:migrate:dev`.
-5. Start the API and worker separately or run the Docker stack.
+- Node.js
+- TypeScript
+- Fastify
 
-Docker Compose defaults to `.env.docker.example`. If you want a different file, run with `SIGNALDOCK_ENV_FILE=.env docker compose up --build`.
+## Queue
 
-## API endpoints
+- BullMQ
+- Redis
 
-- `POST /v1/webhook-events`
-- `GET /v1/webhook-events/:id`
-- `GET /health`
+## Database
 
-## Delivery flow
+- PostgreSQL
+- Prisma ORM
 
-1. API validates and stores the incoming event.
-2. API enqueues a BullMQ delivery job.
-3. Worker fetches the event and performs the outbound HTTP request.
-4. Each attempt is recorded in PostgreSQL.
-5. Failures retry with exponential backoff.
-6. Permanently failed events are marked dead-lettered and copied to the dead letter queue.
+## Infrastructure
+
+- Docker
+- Docker Compose
+
+---
+
+# 📁 Project Structure
+
+```text
+SignalDock
+│
+├── apps
+│   ├── api
+│   │   ├── routes
+│   │   ├── controllers
+│   │   ├── services
+│   │   └── plugins
+│   │
+│   └── worker
+│       ├── processors
+│       ├── queues
+│       └── jobs
+│
+├── packages
+│   └── shared
+│       ├── env
+│       ├── queue
+│       └── types
+│
+├── prisma
+│   ├── schema.prisma
+│   └── migrations
+│
+├── docker-compose.yml
+└── README.md
+```
+
+---
+
+# 🔄 Event Lifecycle
+
+```text
+Webhook Request
+       │
+       ▼
+Validate Payload
+       │
+       ▼
+Store Event
+(PostgreSQL)
+       │
+       ▼
+Enqueue Job
+(BullMQ)
+       │
+       ▼
+Worker Processes Event
+       │
+       ▼
+Deliver Webhook
+       │
+ ┌─────┴─────┐
+ │           │
+ ▼           ▼
+Success    Failure
+ │           │
+ ▼           ▼
+Complete   Retry
+               │
+               ▼
+      Dead Letter Queue
+```
+
+---
+
+# 🌐 API Endpoints
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/v1/webhook-events` | Create a webhook event |
+| GET | `/v1/webhook-events/:id` | Fetch event details |
+| GET | `/health` | Service health check |
+
+---
+
+# ⚙️ Installation
+
+## 1. Clone Repository
+
+```bash
+git clone https://github.com/yourusername/signaldock.git
+
+cd signaldock
+```
+
+---
+
+## 2. Install Dependencies
+
+```bash
+npm install
+```
+
+---
+
+## 3. Configure Environment
+
+Copy the appropriate environment file.
+
+```bash
+cp .env.example .env
+```
+
+For Docker:
+
+```bash
+cp .env.docker.example .env
+```
+
+---
+
+## 4. Generate Prisma Client
+
+```bash
+npm run prisma:generate
+```
+
+---
+
+## 5. Run Database Migrations
+
+```bash
+npm run prisma:migrate:dev
+```
+
+---
+
+## 6. Start Development
+
+Run locally
+
+```bash
+npm run dev
+```
+
+Or start using Docker Compose
+
+```bash
+docker compose up --build
+```
+
+To use a custom environment file:
+
+```bash
+SIGNALDOCK_ENV_FILE=.env docker compose up --build
+```
+
+
+---
+
+# 🚀 Future Improvements
+
+- Prometheus Metrics
+- Grafana Dashboard
+- Webhook Replay UI
+- Webhook Signing
+- Rate Limiting
+- Multiple Queue Priorities
+- Event Filtering
+- Email Notifications
+- Web Dashboard
+- Authentication & API Keys
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome!
+
+Fork the repository, create a feature branch, and submit a pull request.
+
+For major changes, please open an issue first to discuss your proposal.
+
+---
+
+# 👨‍💻 Author
+
+**Hardik Goel**
+
+GitHub: https://github.com/hardik07777
+
+Portfolio: https://portfolio-hardik07.vercel.app/
+
+LinkedIn: https://linkedin.com/in/hardik-goel
+
+---
+
+# ⭐ Support
+
+If you found SignalDock useful, consider giving the repository a ⭐ on GitHub.
