@@ -31,4 +31,4 @@ COPY --from=builder /app/packages/shared/package.json ./packages/shared/package.
 
 EXPOSE 3000
 
-CMD ["node", "apps/api/dist/index.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node apps/api/dist/index.js"]
